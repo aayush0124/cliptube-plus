@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>ClipTube Plus</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 6 9 6-9 6Z"/></svg></div>
+        <div><h1>ClipTube <span>Plus</span></h1><p class="brand-caption">A home for your saved videos.</p></div>
+      </div>
+      <div id="tools-status" class="tool-status" role="status"><span class="status-dot" aria-hidden="true"></span><span id="tools-status-text">Checking download tools…</span></div>
+    </header>
+
+    <div id="app-notice" class="notice" role="status" aria-live="polite" hidden></div>
+    <section id="tools-issues" class="tool-issues" aria-labelledby="tools-issues-title" hidden>
+      <h2 id="tools-issues-title">Download tools need attention</h2><ul id="tools-issue-list"></ul>
+    </section>
+
+    <main class="workbench">
+      <div class="compose-column">
+        <section class="intro"><p class="eyebrow">SAVE WHAT MATTERS</p><h2>Good video.<br>Original quality.</h2><p>Inspect a public video link, choose a source format, and keep a local copy.</p></section>
+
+        <section class="panel composer" aria-labelledby="composer-title">
+          <div class="section-heading"><span class="step-number" aria-hidden="true">01</span><h2 id="composer-title">Choose your video</h2></div>
+          <form id="inspect-form" novalidate>
+            <label for="url-input">Public video URL</label>
+            <div class="url-row"><input id="url-input" name="url" type="url" placeholder="https://www.youtube.com/watch?v=…" autocomplete="off" spellcheck="false" aria-describedby="url-hint"><button id="inspect-button" class="button button-secondary" type="submit" disabled>Inspect</button></div>
+            <p id="url-hint" class="hint">YouTube, Vimeo, and other sites supported by the download engine.</p>
+          </form>
+          <div id="inspection-loading" class="inspection-loading" role="status" hidden><span class="spinner" aria-hidden="true"></span><span>Reading video details and available formats…</span></div>
+          <div id="inspection-error" class="inline-error" role="alert" hidden></div>
+
+          <section id="inspection-result" class="inspection-result" aria-labelledby="video-title" hidden>
+            <div class="video-summary"><div class="video-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="m10 8 6 4-6 4Z"/></svg></div><div class="video-copy"><p id="video-platform" class="eyebrow"></p><h3 id="video-title"></h3><p id="video-meta" class="hint"></p></div></div>
+            <label for="quality-select">Available source quality</label>
+            <select id="quality-select" aria-describedby="quality-detail"></select>
+            <p id="quality-detail" class="hint quality-detail"></p>
+            <ul id="inspection-warnings" class="warnings" hidden></ul>
+            <button id="enqueue-button" class="button button-primary add-button" type="button" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m-5-5 5 5 5-5M4 17v3h16v-3"/></svg><span>Add to download queue</span></button>
+          </section>
+        </section>
+
+        <div class="responsible-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6Z"/><path d="m8 12 3 3 5-6"/></svg><p>Download public media you own or have permission to save. Original source quality only; no upscaling.</p></div>
+        <details class="platform-help" id="platform-help"><summary>Supported platforms &amp; limits</summary><div><p>Support depends on the installed yt-dlp version and what each site exposes for this URL. YouTube, Vimeo, Dailymotion, Twitch, and many other sites have extractors; an extractor does not guarantee every video can be saved.</p><p>Available resolutions and audio tracks come from the source. Some formats require FFmpeg to combine video and audio. Estimated sizes may change during download.</p><p>Login-only, private, DRM-protected, paywalled, and otherwise restricted media are outside this app’s public-media workflow. This app does not import browser cookies or collect sign-in details.</p></div></details>
+      </div>
+
+      <section class="panel queue-panel" aria-labelledby="queue-title">
+        <div class="queue-heading"><div><p class="eyebrow">YOUR LOCAL COLLECTION</p><h2 id="queue-title">Download queue <span id="queue-count" class="count">0</span></h2></div><button id="clear-finished-button" class="text-button" type="button" disabled>Clear finished</button></div>
+        <section class="destination" aria-labelledby="destination-title"><div class="destination-heading"><h3 id="destination-title">Save to folder</h3><button id="choose-folder-button" class="text-button" type="button">Change</button></div><div class="destination-path-row"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7V5h7l2 2h9v13H3Z"/><path d="M3 7h18"/></svg><p id="output-folder" title="">Loading folder…</p><button id="open-folder-button" class="icon-button" type="button" aria-label="Open download folder" title="Open download folder"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6m0-6L9 15M11 4H4v16h16v-7"/></svg></button></div><p class="hint">New queue items use this folder. Existing items keep their destination.</p></section>
+        <div id="queue-empty" class="queue-empty"><div class="empty-art" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M13 20h38v30H13Z"/><path d="M22 14h20M27 8h10M32 26v15m-6-6 6 6 6-6"/></svg></div><h3>Ready when you are.</h3><p>Inspect a video link to add your first download.<br>Your queue is saved between sessions.</p></div>
+        <ol id="queue-list" class="queue-list" aria-label="Downloads"></ol>
+        <div class="queue-footer"><span id="queue-summary">No downloads yet</span><span class="local-label"><span aria-hidden="true">●</span> Saved on this device</span></div>
+      </section>
+    </main>
+    <footer class="app-footer"><span>ClipTube Plus</span><span id="tool-versions">Local downloads · powered by yt-dlp + FFmpeg</span></footer>
+    <p id="screen-reader-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+  </div>
+</body>
+</html>

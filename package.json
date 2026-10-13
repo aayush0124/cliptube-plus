@@ -1,0 +1,23 @@
+{
+  "name": "cliptube-plus",
+  "productName": "ClipTube Plus",
+  "version": "2.0.0",
+  "description": "Local public-media downloader with actual source formats and a persistent queue",
+  "main": "main.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test tests/*.test.js",
+    "test:integration": "node tests/integration.js",
+    "test:ui": "node tests/ui.js",
+    "test:public": "node tests/public-fixture.js",
+    "test:ui-public": "node tests/ui-public.js",
+    "audit:release": "node scripts/audit-release.js"
+  },
+  "devDependencies": {
+    "electron": "43.4.0",
+    "puppeteer-core": "25.7.0"
+  },
+  "engines": {"node": ">=22.12.0"}
+}
