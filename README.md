@@ -28,13 +28,19 @@ Paste one public video URL, click Inspect, review the returned formats and selec
 
 One download and one fragment worker run at a time. Cancel stops the owned download process and removes its job partial files. Retry starts a fresh download. After restarting, unfinished items become Interrupted and require an explicit Retry. Clearing finished history does not delete completed media files.
 
+## Instagram audio pages
+
+Instagram `/reels/audio/<numeric-id>/` links are recognized separately from reels. When the public page embeds an identified audio asset, Inspect offers its audio-only source and the queue saves it without re-encoding. The asset is resolved again before downloading so expired media links are not persisted. The exposed file may be a preview, not the full song.
+
+Pages that omit public audio metadata, redirect to login, refuse access, or expose ambiguous assets stop with an actionable error. Try again later or paste a specific public reel URL using the sound to download that reel. The app does not select a related reel automatically or use private APIs, cookies, or authentication workarounds. Instagram can return a public page shell without downloadable audio, so recognition does not guarantee availability.
+
 ## Quality and output
 
 The menu contains only returned accessible formats. Best available prioritizes the highest reported shorter dimension, then FPS, with extractor ordering breaking ties. It includes audio when an audiovisual option is available; higher silent choices remain explicitly selectable. Audio selection uses reported quality, bitrate and sample rate. Exact video-only formats are paired with selected source audio where available.
 
 The app checks current formats again before downloading. If an exact format ID disappeared, the job fails instead of silently choosing a lower format. Best available may change if the source changed. Dimensions describe an exposed stream, not proof of the original upload master. Unknown dimensions are labeled; direct media links with incomplete metadata are probed with ffprobe.
 
-Separate streams are merged into MKV without video or audio re-encoding; combined streams retain their source container. Completed files are probed for video and expected audio when ffprobe is available. Your player must support the downloaded codecs. Progress reflects the current stream and can restart when audio begins; merging is indeterminate because a reliable percentage is unavailable.
+Separate streams are merged into MKV without video or audio re-encoding; combined streams retain their source container. Completed files are probed for video and expected audio (or an audio-only stream for audio sources) when ffprobe is available. Your player must support the downloaded codecs. Progress reflects the current stream and can restart when audio begins; merging is indeterminate because a reliable percentage is unavailable.
 
 ## Platform support and permitted use
 

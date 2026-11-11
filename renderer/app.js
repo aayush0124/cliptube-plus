@@ -79,7 +79,7 @@
     if (!inspection) return;
     const choice = el.quality.value === 'best' ? inspection.choices.find((item) => String(item.id) === 'best') || inspection.choices[0] : inspection.choices.find((item) => String(item.id) === el.quality.value);
     if (el.quality.value === 'best') {
-      el.qualityDetail.textContent = choice && choice.audioCodec && choice.audioCodec !== 'none' ? 'Uses the best available source video with audio, combined when needed. No upscaling.' : 'Uses the best available source video. This choice has no audio track. No upscaling.';
+      el.qualityDetail.textContent = choice?.videoCodec === 'none' ? 'Saves the exposed source audio without re-encoding.' : choice && choice.audioCodec && choice.audioCodec !== 'none' ? 'Uses the best available source video with audio, combined when needed. No upscaling.' : 'Uses the best available source video. This choice has no audio track. No upscaling.';
       return;
     }
     if (!choice) { el.qualityDetail.textContent = ''; return; }

@@ -217,6 +217,12 @@ async function screenshot(page, filename, width, height) {
       assert.equal(await ui.$eval('#tools-issues', (element) => element.hidden), false);
       assert.match(await ui.$eval('#tools-issues', (element) => element.textContent), /verification will be limited/);
     });
+    await check('mock audio-only choice describes source audio', async()=>{
+      const audio=info('https://fixture.example/audio','audio-token','Owned audio fixture');
+      audio.choices=[{id:'audio',format:'audio',videoCodec:'none',audioCodec:'aac',label:'Audio only · aac',merge:false}];audio.bestLabel=audio.choices[0].label;
+      await inspectFixture(ui,audio);
+      assert.match(await ui.$eval('#quality-detail',element=>element.textContent),/source audio without re-encoding/);
+    });
     await check('mock clear finished preserves active items', async () => {
       await updateJob(ui, 'mock-job-2', {status: 'queued', error: null}); await ui.click('#clear-finished-button');
       await ui.waitForFunction(() => document.querySelectorAll('#queue-list > li').length === 1);

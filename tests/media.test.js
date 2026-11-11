@@ -202,7 +202,6 @@ test('DRM, image-only and unsafe format selectors never become downloadable choi
     {format_id: 'drm', vcodec: 'h264', acodec: 'aac', has_drm: true},
     {format_id: 'storyboard', vcodec: 'images', acodec: 'none', protocol: 'mhtml'},
     {format_id: 'best/video', vcodec: 'h264', acodec: 'aac'},
-    {format_id: '140', vcodec: 'none', acodec: 'aac'},
   ];
   assert.throws(() => normalizeInfo(source({formats}), publicUrl), /No accessible non-DRM video formats/);
   formats.push(source().formats[0]);

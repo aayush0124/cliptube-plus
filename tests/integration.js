@@ -85,6 +85,7 @@ async function createFixture() {
   const result = await execFileAsync(tools.ffmpeg, args, {cwd: fixtureDir, windowsHide: true, timeout: 30000, maxBuffer: 1024 * 1024});
   fs.writeFileSync(path.join(runDir, 'fixture-generation.log'), result.stderr || 'FFmpeg fixture generation succeeded.\n');
   save('fixture-command.json', {binary: tools.ffmpeg, cwd: fixtureDir, args});
+  await execFileAsync(tools.ffmpeg, ['-v','error','-f','lavfi','-i','sine=frequency=440:duration=1','-c:a','aac',path.join(fixtureDir,'audio.m4a')]);
   const files = fs.readdirSync(fixtureDir);
   assert.ok(files.includes('manifest.mpd'));
   const totalBytes = files.reduce((sum, name) => sum + fs.statSync(path.join(fixtureDir, name)).size, 0);
@@ -145,6 +146,20 @@ async function main() {
   report.fixtureEvidence = await check('Generate a small owned two-quality DASH fixture', createFixture);
   const base = await serveFixture();
   const engine = new Engine(tools, {allowLoopback: true});
+  await check('Download and verify an audio-only source through the real queue', async()=>{
+    const audioInfo=await engine.inspect(base+'/fixture/audio.m4a').promise;
+    assert.equal(selectFormat(audioInfo).videoCodec,'none');
+    const audioQueue=new Queue({stateDir:path.join(runDir,'audio-state'),outputDir:path.join(runDir,'audio-downloads'),engine});
+    try {
+      const job=audioQueue.add(audioInfo);
+      await until(()=>['completed','failed'].includes(audioQueue.get(job.id).status),'audio completion');
+      const done=audioQueue.get(job.id);assert.equal(done.status,'completed',done.error);
+      assert.equal(done.verification.audioCodec,'aac');assert.equal(done.verification.videoCodec,null);
+      assert.match(done.stage,/Saved aac audio/);
+      await assert.rejects(engine.verify(done.file).promise,/video stream/);
+      return {audioCodec:done.verification.audioCodec,stage:done.stage};
+    } finally {audioQueue.close();}
+  });
   const info = await check('Inspect actual source formats and select original-resolution best video plus audio', async () => {
     const result = await engine.inspect(base + '/fixture/manifest.mpd').promise;
     save('inspected-formats.json', result);
